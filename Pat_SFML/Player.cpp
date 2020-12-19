@@ -12,7 +12,7 @@ Player::Player(sf::Texture* texture, sf::Vector2u imageCount, float switchTime, 
 	fire = false;
 	canJump = false;
 
-	body.setSize(sf::Vector2f(125.f, 128.f)); //scale charactor
+	body.setSize(sf::Vector2f(64.f, 94.f)); //scale charactor
 	body.setTexture(texture);
 	body.setOrigin(body.getSize().x / 2.0f, body.getSize().y / 2.0f);
 	body.setPosition(275.0f, 312.0f); // position
@@ -249,17 +249,18 @@ void Player::drawbar(sf::Vector2f barpos, sf::RenderWindow& window, sf::Vector2f
 	sf::RectangleShape hpbar;
 	sf::RectangleShape hpback;
 
-	hpbar.setSize(sf::Vector2f(hp * 1.5, 25.0f));
+	hpbar.setSize(sf::Vector2f(hp * 1.2, 25.0f));
 	hpbar.setOrigin(body.getSize() / 2.0f);
-	hpbar.setPosition(barpos.x - 400.0f, barpos.y - 270.0f);
+	hpbar.setPosition(barpos.x - 430.0f, barpos.y - 270.0f);
 	hpbar.setFillColor(sf::Color::Red);
-	hpback.setSize(sf::Vector2f(150.0f, 25.0f));
+	hpback.setSize(sf::Vector2f(180.0f, 25.0f));
 	hpback.setOrigin(body.getSize() / 2.0f);
-	hpback.setPosition(barpos.x - 400.0f, barpos.y - 270.0f);
+	hpback.setPosition(barpos.x - 430.0f, barpos.y - 270.0f);
 	hpback.setFillColor(sf::Color::White);
 	HPbar.setPosition(pos.x - 516, pos.y - 342);  //(sf::Vector2f(24.0f, 18.0f));
 
-	window.draw(HPbar);
+
 	window.draw(hpback);
 	window.draw(hpbar);
+	window.draw(HPbar);
 }

@@ -16,8 +16,10 @@
 #include "menu.h"
 #include "Highscore.h"
 #include <stdlib.h>
-#include<SFML/Audio.hpp>
-#include<SFML/System.hpp>
+#include <SFML/Audio.hpp>
+#include <SFML/System.hpp>
+#include "bulletEnemy.h"
+#include "Boss.h"
 using namespace std;
 
 char nameplayer[10] = " ";//hightscore
@@ -33,7 +35,6 @@ int main()
     sf::RenderWindow window(sf::VideoMode(1080, 720), "63011078 GAME_SFML", sf::Style::Close);//| sf::Style::Resize
 
     //texture
-    sf::Texture playerTexture; // texture is type mean int,float , playerTexture is name of varible
     sf::Texture bullet;
     sf::Texture enemyBull;
     sf::Texture enemyTexture;
@@ -47,10 +48,12 @@ int main()
     sf::Texture howTo;
     sf::Texture Died;
     sf::Texture win;
+    sf::Texture boss11;
+    sf::Texture plays;
 
     sf::Music music;
     //sound
-    /*if (!music.openFromFile("C:/Users/Asarawoot114/source/repos/SFML_104/SFML  _104/sound.wav"))
+    /*if (!music.openFromFile("C:/Users/Asarawoot114/source/repos/SFML_104/SFML_104/sound.wav"))
     {
         std::cout << "ERROR" << std::endl;
     }
@@ -70,32 +73,14 @@ int main()
     buttons.setVolume(60);
     buttons.setBuffer(button);
 
-    sf::SoundBuffer gameEnd;
-    gameEnd.loadFromFile("sound/gameEnd.wav");
-    sf::Sound gameEnds;
-    gameEnds.setVolume(60);
-    gameEnds.setBuffer(gameEnd);
-
-    sf::SoundBuffer onGame;
-    onGame.loadFromFile("sound/onGame.wav");
-    sf::Sound onGames;
-    onGames.setVolume(60);
-    onGames.setBuffer(onGame);
-
     sf::SoundBuffer playerShoot;
     playerShoot.loadFromFile("sound/playerShoot.wav");
     sf::Sound playerShoots;
     playerShoots.setVolume(60);
     playerShoots.setBuffer(playerShoot);
 
-    sf::SoundBuffer soundBossShoot;
-    soundBossShoot.loadFromFile("sound/soundBossShoot.wav");
-    sf::Sound soundBossShoots;
-    soundBossShoots.setVolume(60);
-    soundBossShoots.setBuffer(soundBossShoot);
-
-    playerTexture.loadFromFile("charactor/charactor16.png");
-    Player player(&playerTexture, sf::Vector2u(4, 3), 0.1f, 350.0f, 300.0f);
+    plays.loadFromFile("charactor/gg.png");
+    Player player(&plays, sf::Vector2u(4, 3), 0.1f, 350.0f, 300.0f);
 
     //bullet player
     sf::Vector2f pos;
@@ -106,12 +91,16 @@ int main()
     int bul1 = 0;
 
     enemyBull.loadFromFile("bullets/bulletEnemy.png");
+    bulletEnemy bulletE(&enemyBull, sf::Vector2u(1, 1), 0.1f, 500.0f, sf::Vector2f(-100, -100), sf::Vector2f(50.0f, 31.0f), 0.3f);
     
     //enemy
     enemyTexture.loadFromFile("enemy/enemy12.png");
     //Enemy enemy(&enemyTexture, sf::Vector2u(4, 3), 0.3f, 300.0f, 300.0f);
-
     
+    //boss
+    boss11.loadFromFile("boss/boss.png");
+    Boss boss(&boss11, sf::Vector2u(4, 1), 0.8f, 300.0f, 300.0f, sf::Vector2f(13716.0f, 50.0f));
+
     //hitbox
     HitboxComponent hitboxPlayer(0, 0, sf::Vector2f(46.f, 88.f), player.GetPosition());
 
@@ -154,12 +143,6 @@ int main()
     //warpPoint.setFillColor(sf::Color::Red);
     warpPoint.setPosition(sf::Vector2f(6629.0f, 200.0f));
 
-    //end point
-    sf::RectangleShape endPoint(sf::Vector2f(1.0f, 720.0f));
-    endPoint.setFillColor(sf::Color::Red);
-    endPoint.setTexture(&endMenu);
-    endPoint.setPosition(sf::Vector2f(28058.0f, 0.0f));
-
     ////warp point
     //sf::RectangleShape warpPoint(sf::Vector2f(200.0f, 200.0f));
     //warpPoint.setFillColor(sf::Color::Red);
@@ -170,10 +153,10 @@ int main()
 
     //Index Menu
     Menu menu(window.getSize().x, window.getSize().y);
-    indexMenu.loadFromFile("index_menu/Untitled-1.png");
+    /*indexMenu.loadFromFile("background/mainMenu.png");
     sf::RectangleShape menuIndex(sf::Vector2f(1080.0f, 720.0f));
     menuIndex.setTexture(&indexMenu);
-    menuIndex.setPosition(sf::Vector2f(0.0f, 0.0f));
+    menuIndex.setPosition(sf::Vector2f(0.0f, 0.0f));*/
     int cheeckongame = 0;
     int howToPlay = 0;
     int highScore = 0;
@@ -316,6 +299,7 @@ int main()
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) && pselect == 0 && diedddddd == 0)
             {
                 stop = false;
+                cheeckongame = 9;
             }
             window.draw(paused);
             window.draw(resume);
@@ -477,11 +461,46 @@ int main()
                 }
                 if (enemys[i].GetCollider1().hit(player.GetCollider(), direction))
                 {
-                    player.damaged(10);
+                    player.damaged(5);
                 }
             }
 
-            
+            //boss
+            boss.Update(deltaTime, direction);
+            //boss
+            for (PLatform& platform : platforms)
+            {    //Boss
+                if (platform.GetCollider().CheckCollision(boss.GetCollider2(), direction, 1.0f))
+                    boss.OnCollision2(direction);
+            }
+
+            if (boss.GetPosition().x - player.GetPosition().x <= 750.0f && boss.GetPosition().x - player.GetPosition().x > 0 && abs(boss.GetPosition().y - player.GetPosition().y < 150.0f))
+            {
+                bulletE.attackL(boss.GetPosition());
+            }
+            bulletE.updateL(deltaTime);
+            if (abs(bulletE.GetPosition().x - view.getCenter().x) >= 750.0f)
+            {
+                bulletE.ready();
+                bulletE.setPosition();
+            }
+            if (bulletPlayer.GetCollider().CheckCollision(boss.GetCollider2(), direction, 1.0f))
+            {
+                bul = 0;
+                bulletPlayer.ready();
+                bulletPlayer.setPosition(pos);
+                boss.updateHP(1);
+            }
+            if (boss.getHP() <= 0 && boss.GetPosition().x < 29000)
+            {
+                boss.setPos(32000.0f, 100.0f);
+                score += 40;
+            }
+            if (bulletE.GetCollider().hit(player.GetCollider(), direction))
+            {
+                player.damaged(15);
+            }
+
             for (PLatform& platform : platforms)
             {    //player
                 if (platform.GetCollider().CheckCollision(player.GetCollider(), direction, 1.0f))
@@ -565,11 +584,11 @@ int main()
             {
                 faceright = false;
             }
-            //if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape) && cheeckongame == 2)
-            //{
-            //    //cheeckongame = 5;
-            //    stop = true;
-            //}
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape) && cheeckongame == 2)
+            {
+                //cheeckongame = 5;
+                stop = true;
+            }
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && bulletPlayer.cooldown(deltaTime, bul) >= 0.4f)
             {
                 playerShoots.play();
@@ -616,14 +635,17 @@ int main()
                 for (PLatform& platform : platforms)
                     platform.Draw(window);
 
-                //map1
-                window.draw(map1);
+                
 
                 //time
                 window.draw(lbltime);
 
                 //score
                 window.draw(showScore);
+
+                //boss
+                boss.Draw(window);
+                bulletE.draw(window);
 
                 //enemy
                 for (int i = 0; i < enemys.size(); i++)
@@ -640,17 +662,19 @@ int main()
                     player.stateChange(window);
                 }
 
-                //end game
-                if (hitboxPlayer.checkIntersect(endPoint.getGlobalBounds()))
+                if (boss.getHP() <= 0 && boss.GetPosition().x > 8000)
                 {
-                    cheeckongame = 2;
+                    window.draw(warpPoint);
+                    cheeckongame = 8;
+                    //end game
+                    if (hitboxPlayer.checkIntersect(warpPoint.getGlobalBounds()))
+                    {
+                        state = 3;
+                    }
                 }
-
+                //map1
+                window.draw(map1);
                 player.Draw(window);
-                //enemy.draw(window);   
-
-                //hitbox
-                //hitboxPlayer.Draw(window);
 
 
                 if (bul == 1)
@@ -691,6 +715,15 @@ int main()
 
                 hightscname.setString(Hscorename.str());
                 hightscscore.setString(Hscorescore.str());
+            }
+            if (pselect == 3 && cheeckongame == 9)
+            {
+                window.draw(diedd);//hightscore
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+                {
+                    highScore = 1;
+                    pselect = 0;
+                }
             }
             if (cheeckongame == 8)
             {
@@ -747,44 +780,7 @@ int main()
                 player.drawbar(view.getCenter(), window, view.getCenter());
                 howToPlay = 0;
             }
-            if (cheeckongame == 5 && highScore == 0 && howToPlay == 0 && check == 0)
-            {
-                sf::Text paused("Paused", font, 30);
-                sf::Text resume("Resume", font, 30);
-                sf::Text exit("Exit", font, 30);
-
-                window.clear();
-                window.setView(view);
-
-                view.setCenter(sf::Vector2f(-1000.0f, 1800.0f));
-                paused.setPosition(view.getCenter().x - 50, view.getCenter().y - 300.0f);
-                resume.setPosition(view.getCenter().x - 50, view.getCenter().y + 200.0f);
-                exit.setPosition(view.getCenter().x - 50, view.getCenter().y + 250.0f);
-
-                if (pselect == 0)
-                {
-                    resume.setFillColor(sf::Color::Red);
-                    exit.setFillColor(sf::Color::White);
-                }
-                if (pselect == 1)
-                {
-                    exit.setFillColor(sf::Color::Red);
-                    resume.setFillColor(sf::Color::White);
-                }
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
-                {
-                    pselect = 0;
-                }
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
-                {
-                    pselect = 1;
-                }
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) && pselect == 0)
-                {
-                    stop = false;
-                }
-            }
-
+           
             if (diedddddd == 1 && highScore == 0)
             {
 
@@ -792,7 +788,7 @@ int main()
                 {
                     player.setPosition(100.0f, 100.0f);
                     window.draw(diedd);
-                    gameEnds.play();
+                    //gameEnds.play();
                 }
 
                 //check = 0;
